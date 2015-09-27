@@ -126,6 +126,9 @@ struct bio {
 #define BIO_NULL_MAPPED 9	/* contains invalid user pages */
 #define BIO_FS_INTEGRITY 10	/* fs owns integrity data, not block layer */
 #define BIO_QUIET	11	/* Make BIO Quiet */
+#define BIO_MAPPED_INTEGRITY
+#define BIO_BAIO
+
 #define bio_flagged(bio, flag)	((bio)->bi_flags & (1 << (flag)))
 
 /*
@@ -175,7 +178,16 @@ enum bio_rw_flags {
 	BIO_RW_META,
 	BIO_RW_DISCARD,
 	BIO_RW_NOIDLE,
+	
+	BIO_RW_FLUSH,
+	BIO_RW_FUA,
+
+	BIO_RW_THROTTLED,
 };
+
+#define BIO_FLUSH	(1 << BIO_RW_FLUSH)
+#define BIO_FUA		(1 << BIO_RW_FUA)
+#define BIO_DISCARD	(1 << BIO_RW_DEISCARD)
 
 /*
  * First four bits must match between bio->bi_rw and rq->cmd_flags, make

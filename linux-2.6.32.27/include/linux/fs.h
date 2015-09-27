@@ -159,6 +159,7 @@ struct inodes_stat_t {
 			(SWRITE | (1 << BIO_RW_SYNCIO) | (1 << BIO_RW_NOIDLE))
 #define SWRITE_SYNC	(SWRITE_SYNC_PLUG | (1 << BIO_RW_UNPLUG))
 #define WRITE_BARRIER	(WRITE | (1 << BIO_RW_BARRIER))
+#define WRITE_FLUSH	(WRITE | REQ_FLUSH)
 
 /*
  * These aren't really reads or writes, they pass down information about

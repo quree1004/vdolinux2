@@ -181,11 +181,17 @@ struct dm_target {
 	 */
 	unsigned num_flush_requests;
 
+	unsigned num_discard_requests;
+
+
 	/* target specific data */
 	void *private;
 
 	/* Used to provide an error string from the ctr */
 	char *error;
+
+	
+
 };
 
 int dm_register_target(struct target_type *t);

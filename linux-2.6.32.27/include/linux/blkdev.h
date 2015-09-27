@@ -116,6 +116,8 @@ enum rq_flag_bits {
 	__REQ_IO_STAT,		/* account I/O stat */
 	__REQ_MIXED_MERGE,	/* merge of different types, fail separately */
 	__REQ_NR_BITS,		/* stops here */
+
+	__REQ_FLUSH,		/*hj add*/
 };
 
 #define REQ_RW		(1 << __REQ_RW)
@@ -145,6 +147,10 @@ enum rq_flag_bits {
 #define REQ_IO_STAT	(1 << __REQ_IO_STAT)
 #define REQ_MIXED_MERGE	(1 << __REQ_MIXED_MERGE)
 
+#define REQ_FLUSH	(1 << __REQ_FLUSH)
+#define REQ_FLUSH_SEQ	(1 << __REQ_RLUSH_SEQ)
+
+
 #define REQ_FAILFAST_MASK	(REQ_FAILFAST_DEV | REQ_FAILFAST_TRANSPORT | \
 				 REQ_FAILFAST_DRIVER)
 
@@ -160,6 +166,7 @@ struct request {
 	struct call_single_data csd;
 	int cpu;
 
+	
 	struct request_queue *q;
 
 	unsigned int cmd_flags;
@@ -312,6 +319,7 @@ struct queue_limits {
 	unsigned int		io_min;
 	unsigned int		io_opt;
 	unsigned int		max_discard_sectors;
+	unsigned int		discard_granularity;
 
 	unsigned short		logical_block_size;
 	unsigned short		max_hw_segments;
@@ -377,6 +385,8 @@ struct request_queue
 	 * various queue flags, see QUEUE_* below
 	 */
 	unsigned long		queue_flags;
+	unsigned int		flush_flags;
+
 
 	/*
 	 * protects queue structures from reentrancy. ->__queue_lock should
@@ -939,6 +949,8 @@ extern void blk_limits_io_min(struct queue_limits *limits, unsigned int min);
 extern void blk_queue_io_min(struct request_queue *q, unsigned int min);
 extern void blk_limits_io_opt(struct queue_limits *limits, unsigned int opt);
 extern void blk_queue_io_opt(struct request_queue *q, unsigned int opt);
+
+
 extern void blk_set_default_limits(struct queue_limits *lim);
 extern int blk_stack_limits(struct queue_limits *t, struct queue_limits *b,
 			    sector_t offset);
@@ -1142,6 +1154,18 @@ static inline int bdev_alignment_offset(struct block_device *bdev)
 
 	return q->limits.alignment_offset;
 }
+
+/*
+static inline unsigned int queue_discard_granularity(struct request_queue *q)
+{
+	return q->limits.discard_granularity;
+}
+
+static inline unsigned int queue_max_discard_sectors(struct request_queue *q)
+{
+	return q->limits.max_discard_sectors;
+}
+*/
 
 static inline int queue_dma_alignment(struct request_queue *q)
 {
