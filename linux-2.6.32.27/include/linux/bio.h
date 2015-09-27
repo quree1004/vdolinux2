@@ -60,6 +60,9 @@ typedef void (bio_destructor_t) (struct bio *);
  * stacking drivers)
  */
 struct bio {
+
+	unsigned long	bi_ino; /*hyeunjee add*/
+
 	sector_t		bi_sector;	/* device address in 512 byte
 						   sectors */
 	struct bio		*bi_next;	/* request queue link */
