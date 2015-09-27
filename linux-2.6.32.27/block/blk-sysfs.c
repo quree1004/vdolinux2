@@ -21,18 +21,6 @@ queue_var_show(unsigned long var, char *page)
 	return sprintf(page, "%lu\n", var);
 }
 
-/*
-static ssize_t queue_discard_granularity_show(struct request_queue *q, char *page)
-{
-	return queue_var_show(queue_discard_granularity(q), page);
-}
-
-static ssize_t queue_discard_max_show(struct request_queue *q, char *page)
-{
-	return queue_var_show(queue_max_discard_sectors(q) << 9, page);
-}
-*/
-
 static ssize_t
 queue_var_store(unsigned long *var, const char *page, size_t count)
 {
@@ -117,18 +105,6 @@ static ssize_t queue_max_sectors_show(struct request_queue *q, char *page)
 
 	return queue_var_show(max_sectors_kb, (page));
 }
-
-/*
-static struct queue_sysfs_entry queue_discard_granularity_entry = {
-	.attr = {.name = "discard_grnularity", .mode = S_IRUGO },
-	.show = queue_discard_granularity_show,
-};
-
-static struct queue_sysfs_entry queue_discard_max_entry = {
-	.attr = { .name ="discard_max_bytes", .mode =S_IRUGO },
-	.show = queue_discard_max_show,
-};
-*/
 
 static ssize_t queue_logical_block_size_show(struct request_queue *q, char *page)
 {
@@ -352,17 +328,11 @@ static struct attribute *default_attrs[] = {
 	&queue_physical_block_size_entry.attr,
 	&queue_io_min_entry.attr,
 	&queue_io_opt_entry.attr,
-
-//	&queue_discard_granularity_entry.attr,
-//	&queue_discard_max_entry.attr,
-
 	&queue_nonrot_entry.attr,
 	&queue_nomerges_entry.attr,
 	&queue_rq_affinity_entry.attr,
 	&queue_iostats_entry.attr,
 	NULL,
-
-
 };
 
 #define to_queue(atr) container_of((atr), struct queue_sysfs_entry, attr)
