@@ -98,6 +98,11 @@ void blk_set_default_limits(struct queue_limits *lim)
 	lim->max_sectors = BLK_DEF_MAX_SECTORS;
 	lim->max_hw_sectors = INT_MAX;
 	lim->max_discard_sectors = SAFE_MAX_SECTORS;
+
+//	lim->max_discard_sectors = 0;
+//	lim->discard_granularity = 0;
+
+
 	lim->logical_block_size = lim->physical_block_size = lim->io_min = 512;
 	lim->bounce_pfn = (unsigned long)(BLK_BOUNCE_ANY >> PAGE_SHIFT);
 	lim->alignment_offset = 0;
@@ -107,6 +112,13 @@ void blk_set_default_limits(struct queue_limits *lim)
 }
 EXPORT_SYMBOL(blk_set_default_limits);
 
+/*
+void blk_queue_discard_grnularity(struct request_queue *q, unsigned int gran)
+{
+	q->limits.discard_granularity = gran;
+}
+EXPORT_SYMBOL(blk_queue_discard_granularity);
+*/
 /**
  * blk_queue_make_request - define an alternate make_request function for a device
  * @q:  the request queue for the device to be affected
