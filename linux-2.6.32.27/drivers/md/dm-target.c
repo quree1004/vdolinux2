@@ -56,6 +56,8 @@ struct target_type *dm_get_target_type(const char *name)
 	if (!tt) {
 		load_module(name);
 		tt = get_target_type(name);
+
+		printk("[YM] dm_get_target_type : %s", tt->name);
 	}
 
 	return tt;

@@ -337,6 +337,7 @@ static void bitmap_file_kick(struct bitmap *bitmap);
 static void write_page(struct bitmap *bitmap, struct page *page, int wait)
 {
 	struct buffer_head *bh;
+	unsigned long temp_ino;
 
 	if (bitmap->file == NULL) {
 		switch (write_sb_page(bitmap, page, wait)) {
@@ -347,10 +348,13 @@ static void write_page(struct bitmap *bitmap, struct page *page, int wait)
 
 		bh = page_buffers(page);
 
+		temp_ino = bh->b_page->mapping->host->i_ino;
+	
 		while (bh && bh->b_blocknr) {
 			atomic_inc(&bitmap->pending_writes);
 			set_buffer_locked(bh);
 			set_buffer_mapped(bh);
+			
 			submit_bh(WRITE, bh);
 			bh = bh->b_this_page;
 		}
@@ -418,6 +422,8 @@ static struct page *read_page(struct file *file, unsigned long index,
 	PRINTK("read bitmap file (%dB @ %Lu)\n", (int)PAGE_SIZE,
 			(unsigned long long)index << PAGE_SHIFT);
 
+
+    printk("YOUNGMIN : %ld\n", inode->i_ino);
 	page = alloc_page(GFP_KERNEL);
 	if (!page)
 		page = ERR_PTR(-ENOMEM);
@@ -729,6 +735,8 @@ static void bitmap_file_put(struct bitmap *bitmap)
 	bitmap->file = NULL;
 	spin_unlock_irqrestore(&bitmap->lock, flags);
 
+    printk("plz\n");
+
 	if (file)
 		wait_event(bitmap->write_wait,
 			   atomic_read(&bitmap->pending_writes)==0);
@@ -739,6 +747,8 @@ static void bitmap_file_put(struct bitmap *bitmap)
 		invalidate_mapping_pages(inode->i_mapping, 0, -1);
 		fput(file);
 	}
+
+    printk("plz\n");
 }
 
 

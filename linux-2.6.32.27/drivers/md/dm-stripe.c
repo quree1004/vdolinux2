@@ -44,6 +44,38 @@ struct stripe_c {
 
 static struct workqueue_struct *kstriped;
 
+// YOUNGMIN
+void print_val(struct stripe_c *st, struct bio *bio, sector_t sec, int stripe)
+{
+    int i, nr_sectors;
+    //struct stripe_c *st = (struct stripe_c *) ti->private;
+
+    nr_sectors = bio_sectors(bio);
+
+    
+    printk("[YOUNGMIN stripe] dev_name : %s, nr_sector : %d, sector : %lli, stripes : %d\n, inodenumber : %lu\n", 
+            st->stripe[stripe].dev->name, nr_sectors, sec, stripe, bio->bi_ino); 
+
+    /*
+    for(i=0; i<bio->bi_vcnt; i++)
+    {
+        printk("[biovec : off:%d len:%d\n", bio->bi_io_vec[i].bv_offset, bio->bi_io_vec[i].bv_len);
+    }
+    */
+}
+
+#if 0
+void test_ym(struct stripe_c *st, int stripe)
+{
+    //st->stripe[stripe].dev->bdev->bd_super;
+    //getinode super_block vali
+    struct inode *ret;
+
+    ret = v9fs_get_inode(st->stripe[stripe].dev->bdev->bd_super, st->stripe[stripe].dev.mode);
+}
+#endif
+
+
 /*
  * An event is triggered whenever a drive
  * drops out of a stripe volume.
@@ -214,21 +246,31 @@ static int stripe_map(struct dm_target *ti, struct bio *bio,
 	struct stripe_c *sc = (struct stripe_c *) ti->private;
 	sector_t offset, chunk;
 	uint32_t stripe;
+    
+    int i=0;
+    struct bio_set *test;
 
 	if (unlikely(bio_empty_barrier(bio))) {
 		BUG_ON(map_context->flush_request >= sc->stripes);
 		bio->bi_bdev = sc->stripe[map_context->flush_request].dev->bdev;
 		return DM_MAPIO_REMAPPED;
 	}
-
+ 
 	offset = bio->bi_sector - ti->begin;
-	chunk = offset >> sc->chunk_shift;
+    chunk = offset >> sc->chunk_shift;
 	stripe = sector_div(chunk, sc->stripes);
 
 	bio->bi_bdev = sc->stripe[stripe].dev->bdev;
 	bio->bi_sector = sc->stripe[stripe].physical_start +
 	    (chunk << sc->chunk_shift) + (offset & sc->chunk_mask);
-	return DM_MAPIO_REMAPPED;
+
+    //print_val(sc, bio, bio->bi_sector, stripe);
+
+    //test = bio->bi_private;
+
+
+
+    return DM_MAPIO_REMAPPED;
 }
 
 /*
@@ -290,6 +332,7 @@ static int stripe_end_io(struct dm_target *ti, struct bio *bio,
 
 	if (error == -EOPNOTSUPP)
 		return error;
+
 
 	memset(major_minor, 0, sizeof(major_minor));
 	sprintf(major_minor, "%d:%d",

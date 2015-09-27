@@ -38,6 +38,7 @@
  * drop to zero.
  */
 
+#if 0
 struct dm_table {
 	struct mapped_device *md;
 	atomic_t holders;
@@ -69,6 +70,7 @@ struct dm_table {
 
 	struct dm_md_mempools *mempools;
 };
+#endif
 
 /*
  * Similar to ceiling(log_size(n))

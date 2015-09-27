@@ -6,6 +6,9 @@
 
 #include <linux/sysfs.h>
 #include <linux/dm-ioctl.h>
+
+//#include <linux/kobject.h>
+
 #include "dm.h"
 
 struct dm_sysfs_attr {
@@ -35,6 +38,8 @@ static ssize_t dm_attr_show(struct kobject *kobj, struct attribute *attr,
 
 	ret = dm_attr->show(md, page);
 	dm_put(md);
+
+    //printk("dfkjsdalfakl;sjf;kldasj ftyounfmi YOUNGMIN : %ld\n", kobj->sd->s_ino);
 
 	return ret;
 }

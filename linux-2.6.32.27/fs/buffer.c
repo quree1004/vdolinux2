@@ -2947,6 +2947,7 @@ int submit_bh(int rw, struct buffer_head * bh)
 {
 	struct bio *bio;
 	int ret = 0;
+    unsigned long temp;
 
 	BUG_ON(!buffer_locked(bh));
 	BUG_ON(!buffer_mapped(bh));
@@ -2972,6 +2973,12 @@ int submit_bh(int rw, struct buffer_head * bh)
 	 * submit_bio -> generic_make_request may further map this bio around
 	 */
 	bio = bio_alloc(GFP_NOIO, 1);
+
+    if( 0 != bh->b_page->mapping->host->i_ino ) {
+
+        temp = bh->b_page->mapping->host->i_ino; 
+        bio->bi_ino = temp;
+    }
 
 	bio->bi_sector = bh->b_blocknr * (bh->b_size >> 9);
 	bio->bi_bdev = bh->b_bdev;

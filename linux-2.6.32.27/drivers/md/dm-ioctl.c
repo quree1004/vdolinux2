@@ -1528,6 +1528,7 @@ static int ctl_ioctl(uint command, struct dm_ioctl __user *user)
 
 static long dm_ctl_ioctl(struct file *file, uint command, ulong u)
 {
+    //printk("[dm_ctl_ioctl : %lu\n", file->f_mapping->host->i_ino);
 	return (long)ctl_ioctl(command, (struct dm_ioctl __user *)u);
 }
 

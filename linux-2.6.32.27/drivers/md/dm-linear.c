@@ -17,6 +17,7 @@
 /*
  * Linear: maps a linear range of a device.
  */
+
 struct linear_c {
 	struct dm_dev *dev;
 	sector_t start;
@@ -25,6 +26,24 @@ struct linear_c {
 /*
  * Construct a linear mapping: <dev_path> <offset>
  */
+/*
+void test_ym(struct dm_target *ti)
+{
+	struct list_head *devices = dm_table_get_devices(ti->table);
+	struct dm_dev_internal *dd = NULL;
+
+	list_for_each_entry(dd, devices, list)
+	{
+		printk("[test_ym] : major,minor : %s\n", dd->dm_dev.name);
+		printk("[test_ym] : %llu %llu\n", 
+			(unsigned long long)dd->dm_dev.bdev->bd_part->start_sect,
+			(unsigned long long)dd->dm_dev.bdev->bd_part->nr_sects);
+		printk("[test_ym] : start_sects : %llu, nr_sects : %llu\n", 
+			(unsigned long long)dd->dm_dev.bdev->bd_disk->part0.start_sect,
+			(unsigned long long)dd->dm_dev.bdev->bd_disk->part0.nr_sects);
+	}
+}*/
+
 static int linear_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 {
 	struct linear_c *lc;
@@ -55,8 +74,13 @@ static int linear_ctr(struct dm_target *ti, unsigned int argc, char **argv)
 
 	ti->num_flush_requests = 1;
 	ti->private = lc;
-	return 0;
 
+	//printk("[linear_ctr] %s %d\n", ti->type->name, ti->table->num_targets);
+	
+	//test_ym(ti);
+	
+	return 0;
+	
       bad:
 	kfree(lc);
 	return -EINVAL;
@@ -77,13 +101,39 @@ static sector_t linear_map_sector(struct dm_target *ti, sector_t bi_sector)
 	return lc->start + (bi_sector - ti->begin);
 }
 
+#if 0
+void print_val(struct dm_target *ti, struct bio *bio, sector_t sec)
+{
+    int i, nr_sectors;
+    struct linear_c *lc = (struct linear_c *) ti->private;
+
+    nr_sectors = bio_sectors(bio);
+
+    if( WRITE == bio->bi_rw )
+    {
+        printk("[YOUNGMIN] dev_name : %s, nr_sector : %d, bi_idx : %d, sector : %lli\n", lc->dev->name, nr_sectors, bio->bi_idx, sec);
+        
+        for(i=0; i<bio->bi_vcnt; i++)
+        {
+            printk("[YOUNGMIN] bi_vcnt : %d, offset : %d, length : %d\n",
+                    bio->bi_vcnt,
+                    bio->bi_io_vec[i].bv_offset,
+                    bio->bi_io_vec[i].bv_len);
+        }
+    }
+}
+#endif
+
 static void linear_map_bio(struct dm_target *ti, struct bio *bio)
 {
 	struct linear_c *lc = ti->private;
 
 	bio->bi_bdev = lc->dev->bdev;
-	if (bio_sectors(bio))
+	if (bio_sectors(bio)) {
+        
 		bio->bi_sector = linear_map_sector(ti, bio->bi_sector);
+	                
+	}
 }
 
 static int linear_map(struct dm_target *ti, struct bio *bio,

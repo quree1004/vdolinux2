@@ -1438,8 +1438,12 @@ void bio_endio(struct bio *bio, int error)
 	else if (!test_bit(BIO_UPTODATE, &bio->bi_flags))
 		error = -EIO;
 
+    //printk("before : bio_endio : %lu\n", bio->bi_ino);
+
 	if (bio->bi_end_io)
 		bio->bi_end_io(bio, error);
+
+    //printk("after : bio_endio : %lu\n", bio->bi_ino);
 }
 EXPORT_SYMBOL(bio_endio);
 

@@ -64,6 +64,7 @@ static inline int use_bip_pool(unsigned int idx)
 	if (idx == BIOVEC_MAX_IDX)
 		return 1;
 
+
 	return 0;
 }
 
@@ -89,6 +90,8 @@ struct bio_integrity_payload *bio_integrity_alloc_bioset(struct bio *bio,
 	BUG_ON(bio == NULL);
 	bip = NULL;
 
+
+
 	/* Lower order allocations come straight from slab */
 	if (!use_bip_pool(idx))
 		bip = kmem_cache_alloc(bip_slab[idx].slab, gfp_mask);
@@ -104,11 +107,15 @@ struct bio_integrity_payload *bio_integrity_alloc_bioset(struct bio *bio,
 		}
 	}
 
+	printk("bio_integrity_paylod before : %lu\n", bio->bi_ino);
+
 	memset(bip, 0, sizeof(*bip));
 
 	bip->bip_slab = idx;
 	bip->bip_bio = bio;
 	bio->bi_integrity = bip;
+
+	printk("bio_integrity_payload after : %lu\n", bio->bi_ino);
 
 	return bip;
 }
@@ -407,6 +414,8 @@ int bio_integrity_prep(struct bio *bio)
 	q = bdev_get_queue(bio->bi_bdev);
 	BUG_ON(bi == NULL);
 	BUG_ON(bio_integrity(bio));
+
+	printk("bio_integrity_prep = %lu\n", bio->bi_ino);
 
 	sectors = bio_integrity_hw_sectors(bi, bio_sectors(bio));
 

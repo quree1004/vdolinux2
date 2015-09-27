@@ -29,6 +29,10 @@
 #define DM_TYPE_BIO_BASED	1
 #define DM_TYPE_REQUEST_BASED	2
 
+//
+#define MAX_DEPTH 16
+//
+//
 /*
  * List of devices that a metadevice uses and should open/close.
  */
@@ -38,8 +42,146 @@ struct dm_dev_internal {
 	struct dm_dev dm_dev;
 };
 
-struct dm_table;
+#if 0
+struct kobject {
+
+    const char  *name;
+    struct list_head entry;
+    struct kobject *parent;
+    struct kset *kset;
+    struct kobj_type *ktype;
+    struct sysfs_dirent *sd;
+    struct kref kref;
+    unsigned int state_initialized:1;
+    unsigned int state_in_sysfs:1;
+    unsigned int state_add_uevent_sent:1;
+    unsigned int state_remove_uevent_sent:1;
+    unsigned int uevent_suppress:1;
+
+};
+#endif
+
+struct dm_table {
+        struct mapped_device *md;
+        atomic_t holders;
+        unsigned type;
+
+        /* btree table */
+        unsigned int depth;
+        unsigned int counts[MAX_DEPTH]; /* in nodes */
+        sector_t *index[MAX_DEPTH];
+
+        unsigned int num_targets;
+        unsigned int num_allocated;
+        sector_t *highs;
+        struct dm_target *targets;
+
+        /*
+ *          * Indicates the rw permissions for the new logical
+ *                   * device.  This should be a combination of FMODE_READ
+ *                            * and FMODE_WRITE.
+ *                                     */
+        fmode_t mode;
+
+        /* a list of devices used by this table */
+        struct list_head devices;
+
+        /* events get handed up using this callback */
+        void (*event_fn)(void *);
+        void *event_context;
+
+        struct dm_md_mempools *mempools;
+};
+
+
+#if 0
+struct mapped_device
+{
+	struct rw_semaphore io_lock;
+	struct mutex suspend_lock;
+	rwlock_t map_lock;
+	atomic_t holders;
+	atomic_t open_count;
+
+	unsigned long flags;
+
+	struct request_queue *queue;
+	struct gendisk *disk;
+	char name[16];
+
+	void *interface_ptr;
+
+	/*
+	 * A list of ios that arrived while we were suspended.
+	 */
+	atomic_t pending[2];
+	wait_queue_head_t wait;
+	struct work_struct work;
+	struct bio_list deferred;
+	spinlock_t deferred_lock;
+
+	/*
+	 * An error from the barrier request currently being processed.
+	 */
+	int barrier_error;
+
+	/*
+	 * Processing queue (flush/barriers)
+	 */
+	struct workqueue_struct *wq;
+
+	/*
+	 * The current mapping.
+	 */
+	struct dm_table *map;
+
+	/*
+	 * io objects are allocated from here.
+	 */
+	mempool_t *io_pool;
+	mempool_t *tio_pool;
+
+	struct bio_set *bs;
+
+	/*
+	 * Event handling.
+	 */
+	atomic_t event_nr;
+	wait_queue_head_t eventq;
+	atomic_t uevent_seq;
+	struct list_head uevent_list;
+	spinlock_t uevent_lock; /* Protect access to uevent_list */
+
+	/*
+	 * freeze/thaw support require holding onto a super block
+	 */
+	struct super_block *frozen_sb;
+	struct block_device *bdev;
+
+	/* forced geometry settings */
+	struct hd_geometry geometry;
+
+	/* marker of flush suspend for request-based dm */
+	struct request suspend_rq;
+
+	/* For saving the address of __make_request for request based dm */
+	make_request_fn *saved_make_request_fn;
+
+	/* sysfs handle */
+	struct kobject kobj;
+
+	/* zero-length barrier that will be cloned and submitted to targets */
+	struct bio barrier_bio;
+};
+#endif
+
+//struct dm_table;
 struct dm_md_mempools;
+
+//YOUNGMIN
+
+void print_val(struct dm_target *ti, struct bio *bio, sector_t sec);
+
 
 /*-----------------------------------------------------------------
  * Internal table functions.

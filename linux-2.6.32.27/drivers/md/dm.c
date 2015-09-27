@@ -113,6 +113,7 @@ EXPORT_SYMBOL_GPL(dm_get_rq_mapinfo);
 /*
  * Work processed by per-device workqueue.
  */
+
 struct mapped_device {
 	struct rw_semaphore io_lock;
 	struct mutex suspend_lock;
@@ -516,12 +517,15 @@ struct dm_table *dm_get_table(struct mapped_device *md)
 {
 	struct dm_table *t;
 	unsigned long flags;
+    //struct kobject ymbj = md->kobj;
 
 	read_lock_irqsave(&md->map_lock, flags);
 	t = md->map;
 	if (t)
 		dm_table_get(t);
 	read_unlock_irqrestore(&md->map_lock, flags);
+
+    //printk("youngmin plz..%ld\n", ymbj.sd->s_ino);
 
 	return t;
 }
@@ -965,6 +969,12 @@ static void __map_bio(struct dm_target *ti, struct bio *clone,
 	atomic_inc(&tio->io->io_count);
 	sector = clone->bi_sector;
 	r = ti->type->map(ti, clone, &tio->info);
+   
+    //if(!strcmp(ti->table->md->name, "253:0"))
+    //{
+    //     printk("[__map_bio] : %lli\n", sector);
+    //}
+
 	if (r == DM_MAPIO_REMAPPED) {
 		/* the bio has been remapped so dispatch it */
 
@@ -1224,6 +1234,8 @@ static void __split_and_process_bio(struct mapped_device *md, struct bio *bio)
 		return;
 	}
 
+	printk("[YOUNGMIN __split_and_process_bio : %lu\n", bio->bi_ino);
+	
 	ci.md = md;
 	ci.bio = bio;
 	ci.io = alloc_io(md);
