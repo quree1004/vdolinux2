@@ -1555,6 +1555,13 @@ void submit_bio(int rw, struct bio *bio)
 
 	bio->bi_rw |= rw;
 
+    //if(253==bio->bi_bdev->bd_disk->major)
+    //{   
+        //if(0==bio->bi_bdev->bd_disk->minors)
+    //if( 0 != bio->bi_ino )
+    //    printk("submit_bio get bio : %lu\n", bio->bi_ino);
+    //}
+
 	/*
 	 * If it's a regular read/write or a barrier with data attached,
 	 * go through the normal accounting stuff before submission.
